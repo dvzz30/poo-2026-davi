@@ -1,0 +1,59 @@
+from abc import ABC, abstractmethod
+
+
+
+class Veiculo(ABC):
+    """Define o contrato que todo veículo da pista precisa cumprir."""
+
+    def __init__(self, modelo):
+        self.modelo = modelo
+
+    @abstractmethod
+    def acelerar(self):
+        """Cada veículo deve implementar seu próprio comportamento de aceleração."""
+        pass
+
+
+
+class Carro(Veiculo):
+    def acelerar(self):
+        print(f"🚗 Carro {self.modelo}: pisando fundo no acelerador, "
+              f"pneus cantando no asfalto!")
+
+
+class Moto(Veiculo):
+    def acelerar(self):
+        print(f"🏍️  Moto {self.modelo}: empinando na largada, "
+              f"disparando entre os carros!")
+
+
+class Caminhao(Veiculo):
+    def acelerar(self):
+        print(f"🚚 Caminhão {self.modelo}: aceleração pesada e gradual, "
+              f"tremendo o chão com o motor a diesel!")
+
+
+
+class CarroEletrico(Veiculo):
+    def acelerar(self):
+        print(f"⚡ Carro Elétrico {self.modelo}: aceleração instantânea "
+              f"e silenciosa, disparando sem fazer barulho!")
+
+
+
+def main():
+    pista_de_corrida = [
+        Carro("Fusca Turbo"),
+        Moto("Ninja 400"),
+        Caminhao("Volvo FH"),
+        CarroEletrico("Tesla Model 3"),  # nova classe, mesmo laço
+    ]
+
+    print("=== INÍCIO DA CORRIDA ===\n")
+    for veiculo in pista_de_corrida:
+        veiculo.acelerar()
+    print("\n=== FIM DA CORRIDA ===")
+
+
+if __name__ == "__main__":
+    main()
