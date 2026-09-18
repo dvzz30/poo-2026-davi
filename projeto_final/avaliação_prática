@@ -1,0 +1,309 @@
+class Veiculo:
+    def __init__(self, modelo, placa, valor_diaria):
+        self.__modelo = modelo
+        self.__placa = placa
+        self.__valor_diaria = self._validar_valor_diaria(valor_diaria)
+
+    @staticmethod
+    def _validar_valor_diaria(valor):
+        try:
+            valor = float(valor)
+        except (TypeError, ValueError):
+            raise ValueError("O valor da diária deve ser numérico.")
+        if valor <= 0:
+            raise ValueError("O valor da diária deve ser maior que zero.")
+        return valor
+
+    def get_modelo(self):
+        return self.__modelo
+
+    def get_placa(self):
+        return self.__placa
+
+    def get_valor_diaria(self):
+        return self.__valor_diaria
+
+    def set_modelo(self, modelo):
+        if not modelo or not str(modelo).strip():
+            raise ValueError("O modelo não pode ser vazio.")
+        self.__modelo = str(modelo).strip()
+
+    def set_placa(self, placa):
+        if not placa or not str(placa).strip():
+            raise ValueError("A placa não pode ser vazia.")
+        self.__placa = str(placa).strip().upper()
+
+    def set_valor_diaria(self, valor):
+        self.__valor_diaria = self._validar_valor_diaria(valor)
+
+    def calcular_aluguel(self, dias):
+        dias = self._validar_dias(dias)
+        return self.__valor_diaria * dias
+
+    @staticmethod
+    def _validar_dias(dias):
+        try:
+            dias = int(dias)
+        except (TypeError, ValueError):
+            raise ValueError("A quantidade de dias deve ser um número inteiro.")
+        if dias <= 0:
+            raise ValueError("A quantidade de dias deve ser maior que zero.")
+        return dias
+
+    def __str__(self):
+        return f"{self.get_modelo()} (Placa: {self.get_placa()})"
+
+
+class Carro(Veiculo):
+    TAXA_LIMPEZA = 50.00
+
+    def __init__(self, modelo, placa, valor_diaria, portas):
+        super().__init__(modelo, placa, valor_diaria)
+        self.__portas = self._validar_portas(portas)
+
+    @staticmethod
+    def _validar_portas(portas):
+        try:
+            portas = int(portas)
+        except (TypeError, ValueError):
+            raise ValueError("O número de portas deve ser um número inteiro.")
+        if portas <= 0:
+            raise ValueError("O número de portas deve ser maior que zero.")
+        return portas
+
+    def get_portas(self):
+        return self.__portas
+
+    def set_portas(self, portas):
+        self.__portas = self._validar_portas(portas)
+
+    def calcular_aluguel(self, dias):
+        dias = self._validar_dias(dias)
+        valor_base = self.get_valor_diaria() * dias
+        return valor_base + self.TAXA_LIMPEZA
+
+    def __str__(self):
+        return f"[Carro] {super().__str__()} - {self.__portas} portas"
+
+
+class Moto(Veiculo):
+    DESCONTO = 0.10
+
+    def __init__(self, modelo, placa, valor_diaria, cilindradas):
+        super().__init__(modelo, placa, valor_diaria)
+        self.__cilindradas = self._validar_cilindradas(cilindradas)
+
+    @staticmethod
+    def _validar_cilindradas(cilindradas):
+        try:
+            cilindradas = int(cilindradas)
+        except (TypeError, ValueError):
+            raise ValueError("A cilindrada deve ser um número inteiro.")
+        if cilindradas <= 0:
+            raise ValueError("A cilindrada deve ser maior que zero.")
+        return cilindradas
+
+    def get_cilindradas(self):
+        return self.__cilindradas
+
+    def set_cilindradas(self, cilindradas):
+        self.__cilindradas = self._validar_cilindradas(cilindradas)
+
+    def calcular_aluguel(self, dias):
+        dias = self._validar_dias(dias)
+        valor_base = self.get_valor_diaria() * dias
+        return valor_base * (1 - self.DESCONTO)
+
+    def __str__(self):
+        return f"[Moto] {super().__str__()} - {self.__cilindradas} cilindradas"
+
+
+def ler_texto(mensagem):
+    while True:
+        try:
+            valor = input(mensagem).strip()
+            if not valor:
+                raise ValueError("Este campo não pode ficar em branco.")
+            return valor
+        except ValueError as e:
+            print(f"  Entrada inválida: {e} Tente novamente.")
+
+
+def ler_float(mensagem):
+    while True:
+        try:
+            valor = float(input(mensagem).strip().replace(",", "."))
+            if valor <= 0:
+                raise ValueError("O valor deve ser maior que zero.")
+            return valor
+        except ValueError:
+            print("  Entrada inválida: digite um número válido maior que zero.")
+
+
+def ler_inteiro(mensagem):
+    while True:
+        try:
+            valor = int(input(mensagem).strip())
+            if valor <= 0:
+                raise ValueError("O valor deve ser maior que zero.")
+            return valor
+        except ValueError:
+            print("  Entrada inválida: digite um número inteiro válido maior que zero.")
+
+
+def ler_opcao_menu(mensagem, opcoes_validas):
+    while True:
+        try:
+            opcao = int(input(mensagem).strip())
+            if opcao not in opcoes_validas:
+                raise ValueError("Opção fora do intervalo permitido.")
+            return opcao
+        except ValueError:
+            print("  Opção inválida! Digite um número correspondente a uma opção do menu.")
+
+
+def cadastrar_carro(frota):
+    print("\n--- Cadastro de Carro ---")
+    try:
+        modelo = ler_texto("Modelo: ")
+        placa = ler_texto("Placa: ")
+        valor_diaria = ler_float("Valor da diária (R$): ")
+        portas = ler_inteiro("Número de portas: ")
+        carro = Carro(modelo, placa, valor_diaria, portas)
+        frota.append(carro)
+    except ValueError as e:
+        print(f"  Não foi possível cadastrar o carro: {e}")
+    else:
+        print(f"  Carro cadastrado com sucesso: {carro}")
+    finally:
+        print("--- Fim do cadastro de carro ---\n")
+
+
+def cadastrar_moto(frota):
+    print("\n--- Cadastro de Moto ---")
+    try:
+        modelo = ler_texto("Modelo: ")
+        placa = ler_texto("Placa: ")
+        valor_diaria = ler_float("Valor da diária (R$): ")
+        cilindradas = ler_inteiro("Cilindradas: ")
+        moto = Moto(modelo, placa, valor_diaria, cilindradas)
+        frota.append(moto)
+    except ValueError as e:
+        print(f"  Não foi possível cadastrar a moto: {e}")
+    else:
+        print(f"  Moto cadastrada com sucesso: {moto}")
+    finally:
+        print("--- Fim do cadastro de moto ---\n")
+
+
+def listar_frota(frota):
+    print("\n--- Veículos da Frota ---")
+    if not frota:
+        print("  Nenhum veículo cadastrado ainda.")
+    else:
+        for indice, veiculo in enumerate(frota, start=1):
+            print(f"  {indice}. {veiculo} | Diária: R$ {veiculo.get_valor_diaria():.2f}")
+    print("-------------------------\n")
+
+
+def processar_alugueis(frota):
+    print("\n--- Cálculo de Aluguéis (Processamento Polimórfico) ---")
+    if not frota:
+        print("  Nenhum veículo cadastrado para calcular aluguel.")
+        print("--------------------------------------------------------\n")
+        return
+
+    try:
+        dias = ler_inteiro("Para quantos dias deseja simular o aluguel de TODA a frota? ")
+    except Exception as e:
+        print(f"  Erro inesperado ao ler os dias: {e}")
+        return
+
+    total_geral = 0.0
+    for veiculo in frota:
+        try:
+            valor = veiculo.calcular_aluguel(dias)
+        except ValueError as e:
+            print(f"  Erro ao calcular aluguel de {veiculo}: {e}")
+            continue
+        else:
+            total_geral += valor
+            print(f"  {veiculo} -> {dias} dia(s) = R$ {valor:.2f}")
+
+    print(f"  TOTAL GERAL DA FROTA: R$ {total_geral:.2f}")
+    print("--------------------------------------------------------\n")
+
+
+def alugar_veiculo(frota):
+    print("\n--- Alugar Veículo Específico ---")
+    if not frota:
+        print("  Nenhum veículo cadastrado ainda.")
+        print("----------------------------------\n")
+        return
+
+    listar_frota(frota)
+    try:
+        indice = ler_inteiro("Digite o número do veículo que deseja alugar: ")
+        veiculo = frota[indice - 1]
+        dias = ler_inteiro("Por quantos dias? ")
+        valor = veiculo.calcular_aluguel(dias)
+    except IndexError:
+        print("  Veículo não encontrado. Verifique o número digitado.")
+    except ValueError as e:
+        print(f"  Erro nos dados informados: {e}")
+    except Exception as e:
+        print(f"  Erro inesperado: {e}")
+    else:
+        print(f"  Aluguel confirmado: {veiculo} por {dias} dia(s) = R$ {valor:.2f}")
+    finally:
+        print("----------------------------------\n")
+
+
+def exibir_menu():
+    print("=" * 45)
+    print(" SISTEMA DE GESTÃO DE FROTA E LOCAÇÃO")
+    print("=" * 45)
+    print(" 1 - Cadastrar Carro")
+    print(" 2 - Cadastrar Moto")
+    print(" 3 - Listar Frota")
+    print(" 4 - Calcular Aluguel de TODA a frota (polimorfismo)")
+    print(" 5 - Alugar um veículo específico")
+    print(" 0 - Sair")
+    print("=" * 45)
+
+
+def main():
+    frota = []
+
+    while True:
+        try:
+            exibir_menu()
+            opcao = ler_opcao_menu("Escolha uma opção: ", {0, 1, 2, 3, 4, 5})
+
+            if opcao == 1:
+                cadastrar_carro(frota)
+            elif opcao == 2:
+                cadastrar_moto(frota)
+            elif opcao == 3:
+                listar_frota(frota)
+            elif opcao == 4:
+                processar_alugueis(frota)
+            elif opcao == 5:
+                alugar_veiculo(frota)
+            elif opcao == 0:
+                print("\nEncerrando o sistema. Até logo!")
+                break
+
+        except KeyboardInterrupt:
+            print("\n\nOperação interrompida pelo usuário. Encerrando o sistema.")
+            break
+        except EOFError:
+            print("\n\nEntrada encerrada. Encerrando o sistema.")
+            break
+        except Exception as e:
+            print(f"\n  Ocorreu um erro inesperado no sistema: {e}")
+            print("  Retornando ao menu principal...\n")
+
+
+if __name__ == "__main__":
+    main()
